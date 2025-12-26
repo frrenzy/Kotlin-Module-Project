@@ -2,34 +2,43 @@ package entity.base
 
 abstract class ListEntity<T : BaseEntity>(
     override val name: String,
-    override val goBack: () -> Unit
-) :
-    BaseEntity(name, goBack) {
-
+    override val goBack: () -> Entity,
+) : BaseEntity(name, goBack) {
     abstract val value: ArrayList<T>
     abstract val createCommandName: String
-    abstract fun createElement(): T
 
+    override val contentView = ""
+    override val menuView: String
+        get() {
+            var menu =
+                value
+                    .mapIndexed { i, element -> "${i + 1}: ${element.name}" }
+                    .joinToString("\n")
+            if (!menu.isEmpty()) {
+                menu += "\n"
+            }
+            menu += "${value.size + 1}: $createCommandName"
+
+            return menu
+        }
     override val validator: (Int) -> Boolean = { it >= 0 && it <= value.size + 1 }
 
-    override fun showContent() = Unit
-
-    override fun showMenu() {
-        value.forEachIndexed { i, element -> println("${i + 1}: $element") }
-
-        println("${value.size + 1}: $createCommandName")
-    }
-
-    override fun action(command: Int) {
-        when (command) {
+    override fun action(controller: Controller): Entity =
+        when (val command = controller.getUserCommand(validator)) {
             value.size + 1 -> {
-                val newElement = createElement()
+                val newElement = createElement(controller)
                 value.add(newElement)
-                display()
+                this
             }
 
-            0 -> goBack()
-            else -> value[command - 1].display()
+            0 -> {
+                goBack()
+            }
+
+            else -> {
+                value[command - 1]
+            }
         }
-    }
+
+    abstract fun createElement(controller: Controller): T
 }

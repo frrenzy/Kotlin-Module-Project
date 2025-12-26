@@ -1,11 +1,19 @@
 import entity.Database
+import entity.base.Entity
 import kotlin.system.exitProcess
 
 class App {
     fun start() {
-        val database = Database("Список архивов") {
-            exitProcess(0)
+        val view = Console()
+
+        var currentEntity: Entity =
+            Database("Список архивов") {
+                exitProcess(0)
+            }
+
+        while (true) {
+            view.show(currentEntity)
+            currentEntity = currentEntity.action(view)
         }
-        database.display()
     }
 }
