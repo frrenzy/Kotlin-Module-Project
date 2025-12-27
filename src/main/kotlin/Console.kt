@@ -32,7 +32,16 @@ class Console : Controller {
 
     override fun getUserText(question: String): String {
         println(question)
-        return scanner.nextLine()
+        while (true) {
+            var result = scanner.nextLine()
+
+            if (result.isEmpty()) {
+                println("Пустые значения запрещены")
+                continue
+            }
+
+            return result
+        }
     }
 }
 
